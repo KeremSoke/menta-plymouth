@@ -1,0 +1,58 @@
+# Orbit Plane: deterministic PNG-frame animation. Python is not needed at boot.
+# The frames and triangle move, but the orbital plane's tilt stays fixed.
+Window.SetBackgroundTopColor (0.035, 0.073, 0.14);
+Window.SetBackgroundBottomColor (0.007, 0.019, 0.055);
+
+frames = [];
+for (i = 0; i < 60; i++)
+    frames[i] = Image ("frame-" + i + ".png");
+
+logo = Sprite (frames[0]);
+logo.SetPosition (Window.GetWidth () / 2 - frames[0].GetWidth () / 2,
+                  Window.GetHeight () / 2 - frames[0].GetHeight () / 2, 10);
+
+tick = 0;
+fun refresh_callback ()
+{
+    tick++;
+    # Refresh callbacks may run up to 50 Hz; advance ~17 PNG frames/s.
+    if (tick % 3 == 0)
+    {
+        index = Math.Int (tick / 3) % 60;
+        logo.SetImage (frames[index]);
+    }
+}
+Plymouth.SetRefreshFunction (refresh_callback);
+
+# Minimal visible unlock/question prompt. Validate with your distro's LUKS,
+# HiDPI, localization and accessibility scenarios before public rollout.
+status_sprite = Sprite ();
+status_sprite.SetZ (100);
+status_sprite.SetOpacity (0);
+
+fun show_status (message)
+{
+    local.image = Image.Text (message, 0.90, 0.95, 0.88, 1.0, "Sans 14");
+    status_sprite.SetImage (local.image);
+    status_sprite.SetPosition (Window.GetWidth () / 2 - local.image.GetWidth () / 2,
+                               Window.GetHeight () / 2 + frames[0].GetHeight () / 2 + 15, 100);
+    status_sprite.SetOpacity (1);
+}
+fun display_password_callback (prompt, bullets)
+{
+    local.mask = "";
+    for (local.i = 0; local.i < bullets; local.i++)
+        local.mask += "*";
+    show_status (prompt + "  " + local.mask);
+}
+fun display_question_callback (prompt, entry)
+{
+    show_status (prompt + "  " + entry);
+}
+fun display_normal_callback ()
+{
+    status_sprite.SetOpacity (0);
+}
+Plymouth.SetDisplayPasswordFunction (display_password_callback);
+Plymouth.SetDisplayQuestionFunction (display_question_callback);
+Plymouth.SetDisplayNormalFunction (display_normal_callback);

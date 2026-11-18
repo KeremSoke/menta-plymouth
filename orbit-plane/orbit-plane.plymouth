@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=Orbit Plane
+Description=Procedural fixed-tilt planet and MATE-inspired orbital triangle
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/orbit-plane
+ScriptFile=/usr/share/plymouth/themes/orbit-plane/orbit-plane.script
